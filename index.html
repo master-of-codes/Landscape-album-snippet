@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Brahma Invitations - 3D Book</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Lovers+Quarrel&family=Playfair+Display:wght@700&family=Cinzel:wght@700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: radial-gradient(circle at center, #0f2027, #203a43, #2c5364);
+      font-family: 'Poppins', sans-serif;
+      overflow: hidden;
+      transition: background 0.5s ease;
+    }
+
+    .book-container {
+      width: 96vw;
+      height: 0;
+      padding-bottom: min(96vw * 4.5/16, 96vh);
+      position: relative;
+      transition: all 0.5s ease;
+    }
+
+    .book {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      perspective: 200vw;
+      transform-style: preserve-3d;
+      transition: transform 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    }
+
+    .pages {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      backface-visibility: hidden;
+      border-radius: 8px;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    .page {
+      position: absolute;
+      top: 0;
+      width: 50%;
+      height: 100%;
+      transform-origin: left;
+      transition: transform 1.2s ease-in-out;
+      backface-visibility: hidden;
+      border-radius: 8px;
+      cursor: pointer;
+      user-select: none;
+      background: #faf8f6 url('https://www.transparenttextures.com/patterns/paper-fibers.png');
+      box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.05);
+      overflow: hidden;
+    }
+
+    .page:nth-child(odd) {
+      transform-origin: left;
+      right: 0;
+      background-image: linear-gradient(to right, rgba(0,0,0,0.1), rgba(0,0,0,0)), url('https://www.transparenttextures.com/patterns/paper-fibers.png');
+    }
+
+    .page:nth-child(odd):hover {
+      transform: rotateY(-12deg);
+    }
+
+    .page:nth-child(even) {
+      transform-origin: right;
+      left: 0;
+      transform: rotateY(180deg);
+      background-image: linear-gradient(to left, rgba(0,0,0,0.1), rgba(0,0,0,0)), url('https://www.transparenttextures.com/patterns/paper-fibers.png');
+    }
+
+    .page.flipped:nth-child(odd) {
+      transform: rotateY(-180deg);
+      box-shadow: -5px 0 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .page.flipped:nth-child(even) {
+      transform: rotateY(0deg);
+      box-shadow: 5px 0 15px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Page content styling */
+    .page-content {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* Regular pages with 5px top/bottom margins */
+    .page:not(:nth-child(1)):not(:nth-child(2)):not(:nth-child(16)) .page-content {
+      padding: 5px 10px;
+    }
+
+    .page-image {
+      width: 100%;
+      height: calc(100% - 50px);
+      object-fit: cover;
+      border-radius: 4px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Special styling for first, second and last pages */
+    .page:nth-child(1) .page-content,
+    .page:nth-child(2) .page-content,
+    .page:nth-child(16) .page-content {
+      padding: 0;
+    }
+
+    .page:nth-child(1) .page-image,
+    .page:nth-child(2) .page-image,
+    .page:nth-child(16) .page-image {
+      width: 100%;
+      height: 100%;
+      border-radius: 8px;
+    }
+
+
+
+    /* Page numbers at bottom middle */
+    .page-number {
+      position: absolute;
+      bottom: 10px;
+      left: 0;
+      width: 100%;
+      text-align: center;
+      font-family: 'Poppins', sans-serif;
+      font-size: 14px;
+      color: #666;
+      font-weight: 600;
+    }
+
+    /* Hide page numbers for first 2 pages */
+    .page:nth-child(1) .page-number,
+    .page:nth-child(2) .page-number {
+      display: none;
+    }
+
+    /* First page heading */
+    .first-page-heading {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      width: 80%;
+      z-index: 3;
+    }
+
+    .first-page-heading h1 {
+      font-family: 'Cinzel', serif;
+      font-size: 5vw;
+      color: #2c5364;
+      margin: 0 0 20px 0;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+      line-height: 1.2;
+    }
+
+    .first-page-heading .subtitle {
+      font-family: 'Lovers Quarrel', cursive;
+      font-size: 4vw;
+      color: #203a43;
+      margin: 0;
+    }
+
+    /* Last page heading */
+    .last-page-heading {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      width: 80%;
+      z-index: 3;
+    }
+
+    .last-page-heading h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 4.5vw;
+      color: #2c5364;
+      margin: 0 0 20px 0;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+      line-height: 1.2;
+    }
+
+    .last-page-heading .closing-line {
+      font-family: 'Lovers Quarrel', cursive;
+      font-size: 3.5vw;
+      color: #203a43;
+      margin: 0;
+    }
+
+    /* Developer credit */
+    .developer-credit {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 12px;
+      color: #666;
+      font-weight: 400;
+      text-align: right;
+      z-index: 3;
+    }
+
+    .page p {
+      font-family: 'Lovers Quarrel', cursive;
+      text-align: center;
+      font-size: 4vw;
+      margin: 0;
+      line-height: 1.3;
+      color: #333;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 2;
+    }
+
+    .page::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, rgba(255,255,255,0.15) 0%, transparent 70%);
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      pointer-events: none;
+    }
+
+    .page:hover::before {
+      opacity: 1;
+    }
+
+    .page::after {
+      content: "";
+      position: absolute;
+      top: 0; bottom: 0; left: 0; right: 0;
+      border-radius: 8px;
+      box-shadow: inset 0 0 8px rgba(255,255,255,0.1);
+    }
+
+    /* Rotate button styling */
+    .rotate-btn {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #2c5364, #203a43);
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 24px;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+      z-index: 1000;
+      transition: all 0.3s ease;
+      border: 3px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .rotate-btn:hover {
+      transform: scale(1.1);
+      background: linear-gradient(135deg, #203a43, #0f2027);
+    }
+
+    .rotate-btn:active {
+      transform: scale(0.95);
+    }
+
+    .rotate-count {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #e74c3c;
+      color: white;
+      font-size: 12px;
+      font-weight: bold;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* Fullscreen mode styles */
+    body.fullscreen {
+      overflow: hidden;
+      padding: 0;
+      margin: 0;
+      height: 100vh;
+      width: 100vw;
+    }
+
+    body.fullscreen .book-container {
+      width: 96vh;
+      height: 0;
+      padding-bottom: min(96vh * 4.5/16, 96vw);
+    }
+
+    /* Responsive text scaling */
+    @media (max-width: 1200px) {
+      .first-page-heading h1 { font-size: 5.5vw; }
+      .first-page-heading .subtitle { font-size: 4.5vw; }
+      .last-page-heading h1 { font-size: 5vw; }
+      .last-page-heading .closing-line { font-size: 4vw; }
+      .page p { font-size: 4.5vw; }
+    }
+
+    @media (max-width: 992px) {
+      .first-page-heading h1 { font-size: 6vw; }
+      .first-page-heading .subtitle { font-size: 5vw; }
+      .last-page-heading h1 { font-size: 5.5vw; }
+      .last-page-heading .closing-line { font-size: 4.5vw; }
+      .page p { font-size: 5vw; }
+      .serial-number { font-size: 13px; }
+    }
+
+    @media (max-width: 768px) {
+      .book-container {
+        width: 96vw;
+        padding-bottom: min(96vw * 4.5/16, 96vh);
+      }
+      
+      .first-page-heading h1 { font-size: 7vw; }
+      .first-page-heading .subtitle { font-size: 6vw; }
+      .last-page-heading h1 { font-size: 6.5vw; }
+      .last-page-heading .closing-line { font-size: 5.5vw; }
+      .page p { font-size: 6vw; }
+      
+      .rotate-btn {
+        bottom: 20px;
+        right: 20px;
+        width: 50px;
+        height: 50px;
+        font-size: 20px;
+      }
+      
+      .page-number {
+        font-size: 12px;
+      }
+      
+      .serial-number {
+        font-size: 12px;
+        top: 10px;
+        right: 10px;
+      }
+      
+      .developer-credit {
+        font-size: 10px;
+        bottom: 15px;
+        right: 15px;
+      }
+    }
+
+    @media (max-width: 576px) {
+      .first-page-heading h1 { font-size: 8vw; }
+      .first-page-heading .subtitle { font-size: 7vw; }
+      .last-page-heading h1 { font-size: 7.5vw; }
+      .last-page-heading .closing-line { font-size: 6.5vw; }
+      .page p { font-size: 7vw; }
+      
+      .serial-number {
+        font-size: 11px;
+        top: 8px;
+        right: 8px;
+        padding: 2px 6px;
+      }
+      
+      .developer-credit {
+        font-size: 9px;
+        bottom: 10px;
+        right: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="book-container">
+  <div class="book">
+    <div id="pages" class="pages">
+      <!-- Pages will be dynamically created -->
+    </div>
+  </div>
+</div>
+
+<div class="rotate-btn">
+  <i class="fas fa-redo-alt"></i>
+  <div class="rotate-count">0</div>
+</div>
+
+<script>
+  // Sample images for the book
+  const pageImages = [
+    'https://images.unsplash.com/photo-1541963463532-d68292c34b19?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
+    'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
+    'https://images.unsplash.com/photo-1519681393784-d120267933ba?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
+    'https://images.unsplash.com/photo-1518834103326-6d3eea1b7ab8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
+    'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
+    'https://images.unsplash.com/photo-1519681393784-d120267933ba?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
+    'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
+    'https://images.unsplash.com/photo-1518834103326-6d3eea1b7ab8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
+    'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
+    'https://images.unsplash.com/photo-1541963463532-d68292c34b19?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
+    'https://images.unsplash.com/photo-1518834103326-6d3eea1b7ab8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
+    'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
+    'https://images.unsplash.com/photo-1519681393784-d120267933ba?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
+    'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
+    'https://images.unsplash.com/photo-1518834103326-6d3eea1b7ab8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
+    'https://images.unsplash.com/photo-1541963463532-d68292c34b19?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80'
+  ];
+  
+  const pageTitles = [
+    "The Grand Invitation",
+    "A Visual Journey",
+    "Moments of Joy",
+    "Celebrating Love",
+    "Elegant Gatherings",
+    "Special Occasions",
+    "Cherished Memories",
+    "Festive Celebrations",
+    "Timeless Elegance",
+    "Creating Moments",
+    "Unforgettable Events",
+    "Joyful Celebrations",
+    "Beautiful Memories",
+    "Elegant Affairs",
+    "Celebrating Life",
+    "The Final Chapter"
+  ];
+
+  // Create pages dynamically
+  const pagesContainer = document.getElementById('pages');
+  
+  for (let i = 0; i < 16; i++) {
+    const page = document.createElement('div');
+    page.className = 'page';
+    
+    // Create page content
+    const pageContent = document.createElement('div');
+    pageContent.className = 'page-content';
+    
+    // Add image to page
+    const img = document.createElement('img');
+    img.className = 'page-image';
+    img.src = pageImages[i];
+    img.alt = pageTitles[i];
+    pageContent.appendChild(img);
+
+    // Add page number (starting from page 3, excluding last page)
+    if (i >= 2 && i !== 15) {
+      const pageNumber = document.createElement('div');
+      pageNumber.className = 'page-number';
+      pageNumber.textContent = `Page ${i-1}`;
+      pageContent.appendChild(pageNumber);
+    }
+    
+    // First page with heading
+    if (i === 0) {
+      const headingContainer = document.createElement('div');
+      headingContainer.className = 'first-page-heading';
+      
+      const heading = document.createElement('h1');
+      heading.textContent = "The Art of Celebration";
+      
+      const subtitle = document.createElement('div');
+      subtitle.className = 'subtitle';
+      subtitle.textContent = "A Collection of Memorable Moments";
+      
+      headingContainer.appendChild(heading);
+      headingContainer.appendChild(subtitle);
+      pageContent.appendChild(headingContainer);
+    }
+    
+    // Third page with greeting
+    if (i === 2) {
+      const greeting = document.createElement('p');
+      greeting.innerHTML = "Hello there!<br>Welcome to our journey";
+      pageContent.appendChild(greeting);
+    }
+    
+    // Last page with heading and developer credit
+    if (i === 15) {
+      const headingContainer = document.createElement('div');
+      headingContainer.className = 'last-page-heading';
+      
+      const heading = document.createElement('h1');
+      heading.textContent = "Until We Meet Again";
+      
+      const closingLine = document.createElement('div');
+      closingLine.className = 'closing-line';
+      closingLine.textContent = "With warmest regards";
+      
+      headingContainer.appendChild(heading);
+      headingContainer.appendChild(closingLine);
+      pageContent.appendChild(headingContainer);
+      
+      // Developer credit
+      const developerCredit = document.createElement('div');
+      developerCredit.className = 'developer-credit';
+      developerCredit.textContent = "Developed By Brahma Invitations";
+      pageContent.appendChild(developerCredit);
+    }
+    
+    page.appendChild(pageContent);
+    pagesContainer.appendChild(page);
+  }
+
+  // Initialize pages
+  const pages = document.querySelectorAll('.page');
+  for (let i = 0; i < pages.length; i++) {
+    if (i % 2 === 0) pages[i].style.zIndex = pages.length - i;
+  }
+
+  // Add click event for flipping pages
+  pages.forEach((page, index) => {
+    page.pageNum = index + 1;
+    page.addEventListener('click', function() {
+      if (this.pageNum % 2 === 0) {
+        this.classList.remove('flipped');
+        this.previousElementSibling.classList.remove('flipped');
+      } else {
+        this.classList.add('flipped');
+        this.nextElementSibling.classList.add('flipped');
+      }
+    });
+  });
+
+  // Rotation functionality
+  const rotateBtn = document.querySelector('.rotate-btn');
+  const rotateCountElement = document.querySelector('.rotate-count');
+  const book = document.querySelector('.book');
+  const body = document.body;
+  
+  let rotationCount = 0;
+  let currentRotation = 0;
+  
+  rotateBtn.addEventListener('click', function() {
+    // Increment rotation count
+    rotationCount++;
+    rotateCountElement.textContent = rotationCount;
+    
+    // Rotate the book by 90 degrees counter-clockwise
+    currentRotation -= 90;
+    book.style.transform = `rotate(${currentRotation}deg)`;
+    
+    // Toggle fullscreen mode on odd counts
+    if (rotationCount % 2 === 1) {
+      // Odd count - enter fullscreen mode
+      enterFullscreenMode();
+    } else {
+      // Even count - exit fullscreen mode
+      exitFullscreenMode();
+    }
+    
+    // Reset rotation after 360 degrees to prevent large values
+    if (currentRotation <= -360) {
+      currentRotation = 0;
+    }
+  });
+  
+  function enterFullscreenMode() {
+    // Hide browser UI by making the page look like a standalone app
+    document.documentElement.requestFullscreen?.().catch(e => console.log(e));
+    
+    // Add fullscreen class to body
+    body.classList.add('fullscreen');
+    
+    // Hide scrollbars and prevent scrolling
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+  }
+  
+  function exitFullscreenMode() {
+    // Exit fullscreen
+    document.exitFullscreen?.().catch(e => console.log(e));
+    
+    // Remove fullscreen class from body
+    body.classList.remove('fullscreen');
+    
+    // Restore scrolling
+    document.body.style.overflow = 'auto';
+    document.documentElement.style.overflow = 'auto';
+  }
+  
+  // Handle fullscreen change events
+  document.addEventListener('fullscreenchange', function() {
+    if (!document.fullscreenElement) {
+      body.classList.remove('fullscreen');
+      document.body.style.overflow = 'auto';
+      document.documentElement.style.overflow = 'auto';
+    }
+  });
+  
+  // Initialize rotate count display
+  rotateCountElement.textContent = rotationCount;
+  
+  // Handle responsive text scaling on window resize
+  function updateTextSizes() {
+    const bookWidth = document.querySelector('.book-container').offsetWidth;
+    const scaleFactor = bookWidth / 1200; // Base width for scaling
+    
+    // Adjust font sizes based on book width
+    const firstPageHeadings = document.querySelectorAll('.first-page-heading h1');
+    const firstPageSubtitles = document.querySelectorAll('.first-page-heading .subtitle');
+    const lastPageHeadings = document.querySelectorAll('.last-page-heading h1');
+    const lastPageClosings = document.querySelectorAll('.last-page-heading .closing-line');
+    
+    // Apply scaling with minimum and maximum limits
+    const firstHeadingSize = Math.max(28, Math.min(60, 60 * scaleFactor));
+    const firstSubtitleSize = Math.max(24, Math.min(48, 48 * scaleFactor));
+    const lastHeadingSize = Math.max(26, Math.min(54, 54 * scaleFactor));
+    const lastClosingSize = Math.max(22, Math.min(42, 42 * scaleFactor));
+    
+    firstPageHeadings.forEach(el => {
+      el.style.fontSize = `${firstHeadingSize}px`;
+    });
+    
+    firstPageSubtitles.forEach(el => {
+      el.style.fontSize = `${firstSubtitleSize}px`;
+    });
+    
+    lastPageHeadings.forEach(el => {
+      el.style.fontSize = `${lastHeadingSize}px`;
+    });
+    
+    lastPageClosings.forEach(el => {
+      el.style.fontSize = `${lastClosingSize}px`;
+    });
+  }
+  
+  // Initial call and on window resize
+  updateTextSizes();
+  window.addEventListener('resize', updateTextSizes);
+</script>
+</body>
+</html>
