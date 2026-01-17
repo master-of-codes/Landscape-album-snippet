@@ -323,6 +323,13 @@
       padding-bottom: min(96vh * 4.5/16, 96vw);
     }
 
+    @media (max-width: 768px) {
+      body.fullscreen .book-container {
+        width: 96vw;
+        padding-bottom: min(96vw * 4.5/16, 96vh);
+      }
+    }
+
     /* Responsive text scaling */
     @media (max-width: 1200px) {
       .first-page-heading h1 { font-size: 5.5vw; }
